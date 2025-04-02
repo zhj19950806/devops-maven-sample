@@ -11,11 +11,11 @@ pipeline {
 
     environment {
         DOCKER_CREDENTIAL_ID = 'dockerhub-id'
-        GITHUB_CREDENTIAL_ID = 'github-id'
+        GITLAB_CREDENTIAL_ID = 'gitlab-id'
         KUBECONFIG_CREDENTIAL_ID = 'demo-kubeconfig'
         REGISTRY = 'docker.io'
-        DOCKERHUB_NAMESPACE = 'zhj19950806' // change me
-        GITHUB_ACCOUNT = 'zhj19950806' // change me
+        DOCKERHuB_NAMESPACE = 'zhj19950806' // change me
+        GITLAB_ACCOUNT = 'zhj19950806' // change me
         APP_NAME = 'devops-maven-sample'
         SONAR_CREDENTIAL_ID = 'sonar-token'
     }
@@ -65,7 +65,7 @@ pipeline {
 
         stage('push latest') {
             when {
-                branch 'master'
+                branch 'gitlab-demo'
             }
             steps {
                 container('maven') {
@@ -84,11 +84,11 @@ pipeline {
             steps {
                 container('maven') {
                     input(id: 'release-image-with-tag', message: 'release image with tag?')
-                    withCredentials([usernamePassword(credentialsId: "$GITHUB_CREDENTIAL_ID", passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                    withCredentials([usernamePassword(credentialsId: "$GITLAB_CREDENTIAL_ID", passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                         sh 'git config --global user.email "kubesphere@yunify.com" '
                         sh 'git config --global user.name "kubesphere" '
                         sh 'git tag -a $TAG_NAME -m "$TAG_NAME" '
-                        sh 'git push http://$GIT_USERNAME:$GIT_PASSWORD@github.com/$GITHUB_ACCOUNT/devops-maven-sample.git --tags --ipv4'
+                        sh 'git push http://$GIT_USERNAME:$GIT_PASSWORD@github.com/nice1132314/devops-maven-sample.git --tags --ipv4'
                     }
                     sh 'podman tag $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:$TAG_NAME '
                     sh 'podman push $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:$TAG_NAME '
